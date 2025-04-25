@@ -3,4 +3,6 @@ title: "Hands-on_Ex02"
 author: "CHJ1"
 ---
 
-## I
+## check if these packages have been installed and also will load them onto your working R environment
+
+pacman::p_load(ggrepel, patchwork, ggthemes, hrbrthemes, tidyverse)
