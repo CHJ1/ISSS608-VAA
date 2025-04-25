@@ -101,14 +101,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<section id="check-if-packages-have-been-installed-and-also-will-load-them-onto-working-r-environment." class="level2">
-<h2 class="anchored" data-anchor-id="check-if-packages-have-been-installed-and-also-will-load-them-onto-working-r-environment.">Check if packages have been installed and also will load them onto working R environment.</h2>
+<section id="check-if-packages-have-been-installed-and-also-will-load-them-onto-working-r-environment." class="level1">
+<h1>Check if packages have been installed and also will load them onto working R environment.</h1>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(ggrepel, patchwork, ggthemes, hrbrthemes, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="importing-the-data" class="level2">
-<h2 class="anchored" data-anchor-id="importing-the-data">Importing the Data</h2>
+<section id="importing-the-data" class="level1">
+<h1>Importing the Data</h1>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>exam_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/Exam_data.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -123,11 +123,32 @@ dbl (3): ENGLISH, MATHS, SCIENCE
 </div>
 </div>
 </section>
-<section id="ggplot2-annotation-ggrepel" class="level2">
-<h2 class="anchored" data-anchor-id="ggplot2-annotation-ggrepel"><strong>ggplot2 Annotation: ggrepel</strong></h2>
-<p>```vsddy ggplot(data=exam_data, aes(x= MATHS, y=ENGLISH)) + geom_point() + geom_smooth(method=lm, size=0.5) +<br>
-geom_label(aes(label = ID), hjust = .5, vjust = -.5) + coord_cartesian(xlim=c(0,100), ylim=c(0,100)) + ggtitle(“English scores versus Maths scores for Primary 3”) ::: {.cell}</p>
-<p>:::</p>
+<section id="ggplot2-annotation-ggrepel" class="level1">
+<h1>ggplot2 Annotation: ggrepel</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>exam_data, </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span> MATHS, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">y=</span>ENGLISH)) <span class="sc">+</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span>lm, </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">size=</span><span class="fl">0.5</span>) <span class="sc">+</span>  </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> ID), </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">hjust =</span> .<span class="dv">5</span>, </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">vjust =</span> <span class="sc">-</span>.<span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">100</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">100</span>)) <span class="sc">+</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"English scores versus Maths scores for Primary 3"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Hands-on_Ex02_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 </section>
 
 </main>
