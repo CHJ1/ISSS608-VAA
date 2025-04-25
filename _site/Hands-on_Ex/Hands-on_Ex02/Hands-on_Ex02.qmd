@@ -3,6 +3,10 @@ title: "Hands-on_Ex02"
 author: "CHJ1"
 ---
 
-## check if these packages have been installed and also will load them onto your working R environment
+## Check if packages have been installed and also will load them onto working R environment.
 
-pacman::p_load(ggrepel, patchwork, ggthemes, hrbrthemes, tidyverse)
+\`\`\`{r}pacman::p_load(ggrepel, patchwork, ggthemes, hrbrthemes, tidyverse)\`\`\`
+
+## Importing the Data
+
+\`\`\`{r}exam_data \<- read_csv("chap02/data/Exam_data.csv")\`\`\`
