@@ -5,16 +5,29 @@ author: "CHJ1"
 
 ## Check if packages have been installed and also will load them onto working R environment.
 
-\`\`\`{r}
-
+```{r}
 pacman::p_load(ggrepel, patchwork, ggthemes, hrbrthemes, tidyverse)
-
-\`\`\`
+```
 
 ## Importing the Data
 
-\`\`\`{r}
+```{r}
+exam_data <- read_csv("data/Exam_data.csv")
+```
 
-exam_data \<- read_csv("chap02/data/Exam_data.csv")
+## **ggplot2 Annotation: ggrepel**
 
-\`\`\`
+```{{r}}
+ggplot(data=exam_data, 
+       aes(x= MATHS, 
+           y=ENGLISH)) +
+  geom_point() +
+  geom_smooth(method=lm, 
+              size=0.5) +  
+  geom_label(aes(label = ID), 
+             hjust = .5, 
+             vjust = -.5) +
+  coord_cartesian(xlim=c(0,100),
+                  ylim=c(0,100)) +
+  ggtitle("English scores versus Maths scores for Primary 3")
+  ```{r}
