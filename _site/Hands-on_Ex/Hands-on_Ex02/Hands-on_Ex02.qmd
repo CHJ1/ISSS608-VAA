@@ -1,6 +1,15 @@
 ---
 title: "Hands-on_Ex02"
 author: "CHJ1"
+date: "25 April 2025"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute:
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
 ---
 
 # Check if packages have been installed and also will load them onto working R environment.

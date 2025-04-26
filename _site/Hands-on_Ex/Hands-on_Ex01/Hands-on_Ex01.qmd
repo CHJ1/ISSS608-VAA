@@ -1,6 +1,15 @@
 ---
 title: "Hands-on Exercise 1"
 author: "CHJ1"
+date: "19 April 2025"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute:
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
 ---
 
 # Getting Started
