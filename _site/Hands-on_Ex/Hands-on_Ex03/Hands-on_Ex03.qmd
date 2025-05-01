@@ -1,0 +1,33 @@
+---
+title: "Hands-on_Ex03"
+author: "CHJ1"
+date: "1 May 2025"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute:
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# Programming Interactive Data Visualisation with R
+
+```{r}
+pacman::p_load(ggiraph, plotly, 
+               patchwork, DT, tidyverse) 
+```
+
+# Importing the Data
+
+```{r}
+exam_data <- read_csv("data/Exam_data.csv")
+```
+
+# ggplot2 Annotation: ggrepel
+
+```{r}
+
+```
+
