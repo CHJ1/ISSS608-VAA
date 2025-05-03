@@ -13,19 +13,34 @@ execute:
 output: html_document
 ---
 
-# Programming Interactive Data Visualisation with R
+# Problem Statement
+
+I am assuming the role of a graphical editor of a media company, and I am tasked to prepare at most three data visualisation for the article.
+
+# Objectives of the Article
+
+In my Article, I would like to achieve the following objectives:<br>
+<br>
+1. To get an overview of the demographic structures and distribution of Singapore Residents in 2024.<br>
+2. To find out the area(s) with the highest population of elderly and make recommendations for these area(s).
+
+# Data Source
+
+Dataset, Singapore Residents by Planning Area / Subzone, Single Year of Age and Sex, June 2024, will be used for this article. The dataset can be found here: https://www.singstat.gov.sg/find-data/search-by-theme/population/geographic-distribution/latest-data
+
+# Below outlines the steps to achieve the following visualisations.
+
+# 1. Load Packages
 
 ```{r}
 pacman::p_load(plotly, tidyverse, ggplot2, scales, dplyr, crosstalk, htmltools) 
 ```
 
-# Importing the Data
-
-# Read and prepare data
+# 2. Import and Read Data
 
 ```{r}
 data <- read_csv("data/respopagesex2024.csv")
-glimpse(population)
+glimpse(data)
 ```
 
 ```{r}
