@@ -147,6 +147,14 @@ p_plotly <- p_plotly %>%
 p_plotly
 ```
 
+# Analysis 1
+
+The total resident population in Singapore in 2024 was 4,193,530, comprising 2,041,480 males and 2,152,050 females.
+
+The majority of the population was concentrated in the 30 to 69 age range. A significant decline in population was observed from age 70 onwards. As such, further analysis will focus on this age group in the subsequent visualisations to identify where the elderly population is concentrated in Singapore. This will help support appropriate measures and resource planning to ensure they can age gracefully.
+
+A noticeable drop in population was also observed for those aged 30 and below. This suggests that Singapore is experiencing a declining birth rate and is likely to face the challenges of an ageing society in the years ahead. Therefore, long-term resource planning to support the elderly population will be increasingly crucial.
+
 # 4. Create a Bar Chart of Population Age 70 and Above by Planning Area
 
 ```{r}
@@ -217,6 +225,12 @@ p2_plotly <- p2_plotly %>%
 # Show the plot
 p2_plotly
 ```
+
+# Analysis 2
+
+A bar chart of the population aged 70 and above by planning area was plotted to visualise where the elderly are concentrated in Singapore. According to the visualisation, the total elderly population is 4,901,160, with 42,430 residing in Bedok. This makes Bedok the planning area with the highest elderly population in Singapore. The bar chart also shows that the number of elderly in Bedok is significantly higher compared to other areas.
+
+In the subsequent visualisation, we will further investigate which subzone(s) within Bedok have a higher concentration of elderly residents. This will help guide our analysis on where resources for elderly support should be prioritised.
 
 # 5. Create a Bar Chart of Population Age 70 and Above in Bedok Subzones
 
