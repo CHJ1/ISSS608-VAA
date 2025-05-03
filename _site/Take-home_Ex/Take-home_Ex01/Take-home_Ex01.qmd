@@ -42,12 +42,13 @@ pacman::p_load(plotly, tidyverse, ggplot2, scales, dplyr, crosstalk, htmltools)
 data <- read_csv("data/respopagesex2024.csv")
 glimpse(data)
 ```
+# Create a Bar Chart of Population by Age Group and Sex
 
 ```{r}
-# Create age groups and summarize the data
+# Create age groups and summarise the data
 data <- data %>%
   mutate(
-    Age_num = suppressWarnings(as.numeric(Age)),  # Convert Age to numeric (suppress NA warning from "90_and_Over")
+    Age_num = suppressWarnings(as.numeric(Age)),
     AgeGroup = case_when(
       Age == "90_and_Over" ~ "90_and_Over",
       !is.na(Age_num) ~ as.character(cut(
@@ -63,34 +64,43 @@ data <- data %>%
       ))
     )
   )
+```
 
-# Summarize population by age group and sex
+```{r}
+# Summarise population by age group and sex
 summarized_data <- data %>%
   group_by(AgeGroup, Sex) %>%
   summarise(total_pop = sum(Pop)) %>%
   ungroup()
+```
 
-# Add total population for each AgeGroup (across both sexes)
+```{r}
+# Add total population for each Age Group (across both sexes)
 agegroup_totals <- summarized_data %>%
   group_by(AgeGroup) %>%
   summarise(agegroup_total = sum(total_pop))
 
 summarized_data <- left_join(summarized_data, agegroup_totals, by = "AgeGroup")
+```
 
-
-# Set AgeGroup as an ordered factor to ensure ascending order on the x-axis
+```{r}
+# Set Age Group as an ordered factor to ensure ascending order on the x-axis
 summarized_data$AgeGroup <- factor(
   summarized_data$AgeGroup,
   levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39",
              "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", 
              "75-79", "80-84", "85-89", "90_and_Over")
 )
+```
 
+```{r}
 # Calculate the total population, total male population, and total female population
 total_population <- sum(data$Pop, na.rm = TRUE)
 total_male_population <- sum(summarized_data$total_pop[summarized_data$Sex == "Males"])
 total_female_population <- sum(summarized_data$total_pop[summarized_data$Sex == "Females"])
+```
 
+```{r}
 # Create the ggplot object for the stacked bar chart with updated tooltips
 p <- ggplot(summarized_data, aes(x = AgeGroup, y = total_pop, fill = Sex,
                                 text = paste(" Age Group: ", AgeGroup, "<br>",
@@ -104,11 +114,15 @@ p <- ggplot(summarized_data, aes(x = AgeGroup, y = total_pop, fill = Sex,
        y = "Total Population") +
   scale_y_continuous(labels = comma) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
+```{r}
 # Convert to plotly
 p_plotly <- ggplotly(p, tooltip = "text")
+```
 
-# Add annotation using plotly's native function
+```{r}
+# Add annotation
 p_plotly <- p_plotly %>%
   layout(
     height = 450,
@@ -126,7 +140,9 @@ p_plotly <- p_plotly %>%
       )
     )
   )
+```
 
+```{r}
 # Show the final plot
 p_plotly
 ```
