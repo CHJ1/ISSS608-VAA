@@ -42,7 +42,7 @@ pacman::p_load(plotly, tidyverse, ggplot2, scales, dplyr, crosstalk, htmltools)
 data <- read_csv("data/respopagesex2024.csv")
 glimpse(data)
 ```
-# Create a Bar Chart of Population by Age Group and Sex
+# 3. Create a Bar Chart of Population by Age Group and Sex
 
 ```{r}
 # Create age groups and summarise the data
@@ -147,26 +147,31 @@ p_plotly <- p_plotly %>%
 p_plotly
 ```
 
-
-
+# 4. Create a Bar Chart of Population Age 70 and Above by Planning Area
 
 ```{r}
-# Filter for AgeGroup 70 and above
+# Filter for Age Group 70 and above
 age70plus_data <- data %>%
   filter(
     (Age == "90_and_Over") |
     (suppressWarnings(as.numeric(Age)) >= 70)
   )
+```
 
-# Summarize population over 70 by PA
+```{r}
+# Summarise population 70 and above by PA
 pa_70plus_summary <- age70plus_data %>%
   group_by(PA) %>%
   summarise(pop_over_70 = sum(Pop), .groups = "drop") %>%
   arrange(desc(pop_over_70))
+```
 
-# Calculate total population over age 70
+```{r}
+# Calculate total population age 70 and above
 total_pop_over_70 <- sum(pa_70plus_summary$pop_over_70, na.rm = TRUE)
+```
 
+```{r}
 # Plot using ggplot with custom tooltip text
 p2 <- ggplot(pa_70plus_summary, aes(
   x = reorder(PA, -pop_over_70),
@@ -176,17 +181,21 @@ p2 <- ggplot(pa_70plus_summary, aes(
   geom_bar(stat = "identity", fill = "darkgreen") +
   theme_minimal() +
   labs(
-    title = "Population Over Age 70 by Planning Area",
+    title = "Population Age 70 and Above by Planning Area",
     x = "Planning Area (PA)",
-    y = "Population Over 70"
+    y = "Population 70 and Above"
   ) +
   scale_y_continuous(labels = comma) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
+```{r}
 # Convert to Plotly with custom tooltip
 p2_plotly <- ggplotly(p2, tooltip = "text")
+```
 
-# Add annotation for total population over 70
+```{r}
+# Add annotation for total population 70 and Above
 p2_plotly <- p2_plotly %>%
   layout(
     annotations = list(
@@ -195,69 +204,77 @@ p2_plotly <- p2_plotly %>%
         y = 1,
         xref = "paper",
         yref = "paper",
-        text = paste0("Total Pop 70+: ", comma(total_pop_over_70)),
+        text = paste0("Total Population 70 and Above: ", comma(total_pop_over_70)),
         showarrow = FALSE,
         align = "left",
         font = list(size = 10)
       )
     )
   )
-
-# Show the plot
-p2_plotly
-
-
 ```
 
+```{r}
+# Show the plot
+p2_plotly
+```
 
-
-
-
-
+# 5. Create a Bar Chart of Population Age 70 and Above in Bedok Subzones
 
 ```{r}
-# Filter for PA = "Bedok" and AgeGroup 70 and above
+# Filter for PA = "Bedok" and Age Group 70 and above
 bedok_data <- data %>%
   filter(
     PA == "Bedok" &
     (Age == "90_and_Over" | suppressWarnings(as.numeric(Age)) >= 70)
   )
+```
 
-# Summarize population 70 and above by SZ (subzone)
+```{r}
+# Summarise population 70 and above by SZ (subzone)
 bedok_70plus_summary <- bedok_data %>%
   group_by(SZ) %>%
   summarise(pop_over_70 = sum(Pop), .groups = "drop") %>%
   arrange(desc(pop_over_70))
+```
 
-# Total population over 70 in Bedok
+```{r}
+# Total population 70 and Above in Bedok
 total_bedok_70plus <- sum(bedok_70plus_summary$pop_over_70)
-total_label <- paste0("Total: ", comma(total_bedok_70plus))
+total_label <- paste0("Total Population 70 and Above in Bedok: ", comma(total_bedok_70plus))
+```
 
+```{r}
 # Offset for text above bars
 offset <- max(bedok_70plus_summary$pop_over_70) * 0.02
+```
 
+```{r}
 # Create ggplot
 p3 <- ggplot(bedok_70plus_summary, aes(x = reorder(SZ, -pop_over_70), y = pop_over_70)) +
   geom_bar(stat = "identity", fill = "darkblue") +
   geom_text(aes(y = pop_over_70 + offset, label = comma(pop_over_70)), size = 3) +
   theme_minimal() +
   labs(
-    title = "Population Over Age 70 in Bedok Subzones",
+    title = "Population Age 70 and Above in Bedok Subzones",
     x = "Subzone (SZ)",
-    y = "Population Over 70"
+    y = "Population 70 and Above"
   ) +
   scale_y_continuous(labels = comma, expand = expansion(mult = c(0, 0.1))) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
+```{r}
 # Convert to plotly
 p3_plotly <- ggplotly(p3, tooltip = NULL)
+```
 
-# Add annotation using layout (paper coordinates)
+```{r}
+# Add annotation
 p3_plotly <- p3_plotly %>%
   layout(annotations = list(
     list(
-      x = 0.98,  # near right edge
-      y = 0.98,  # near top
+      x = 0.98,  
+      y = 0.98,  
       text = total_label,
       xref = "paper",
       yref = "paper",
@@ -266,10 +283,9 @@ p3_plotly <- p3_plotly %>%
       align = "right"
     )
   ))
+```
 
+```{r}
 # Show the plot
 p3_plotly
-
-
-
 ```
