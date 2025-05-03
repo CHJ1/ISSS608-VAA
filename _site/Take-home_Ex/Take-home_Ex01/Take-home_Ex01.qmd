@@ -1,0 +1,244 @@
+---
+title: "Take-home_Ex01"
+author: "CHJ1"
+date: "3 May 2025"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute:
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+output: html_document
+---
+
+# Programming Interactive Data Visualisation with R
+
+```{r}
+pacman::p_load(plotly, tidyverse, ggplot2, scales, dplyr, crosstalk, htmltools) 
+```
+
+# Importing the Data
+
+# Read and prepare data
+
+```{r}
+data <- read_csv("data/respopagesex2024.csv")
+glimpse(population)
+```
+
+```{r}
+# Create age groups and summarize the data
+data <- data %>%
+  mutate(
+    Age_num = suppressWarnings(as.numeric(Age)),  # Convert Age to numeric (suppress NA warning from "90_and_Over")
+    AgeGroup = case_when(
+      Age == "90_and_Over" ~ "90_and_Over",
+      !is.na(Age_num) ~ as.character(cut(
+        Age_num,
+        breaks = seq(0, 90, by = 5),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("0-4", "5-9", "10-14", "15-19",
+                   "20-24", "25-29", "30-34", "35-39",
+                   "40-44", "45-49", "50-54", "55-59",
+                   "60-64", "65-69", "70-74", "75-79",
+                   "80-84", "85-89")
+      ))
+    )
+  )
+
+# Summarize population by age group and sex
+summarized_data <- data %>%
+  group_by(AgeGroup, Sex) %>%
+  summarise(total_pop = sum(Pop)) %>%
+  ungroup()
+
+# Add total population for each AgeGroup (across both sexes)
+agegroup_totals <- summarized_data %>%
+  group_by(AgeGroup) %>%
+  summarise(agegroup_total = sum(total_pop))
+
+summarized_data <- left_join(summarized_data, agegroup_totals, by = "AgeGroup")
+
+
+# Set AgeGroup as an ordered factor to ensure ascending order on the x-axis
+summarized_data$AgeGroup <- factor(
+  summarized_data$AgeGroup,
+  levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39",
+             "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", 
+             "75-79", "80-84", "85-89", "90_and_Over")
+)
+
+# Calculate the total population, total male population, and total female population
+total_population <- sum(data$Pop, na.rm = TRUE)
+total_male_population <- sum(summarized_data$total_pop[summarized_data$Sex == "Males"])
+total_female_population <- sum(summarized_data$total_pop[summarized_data$Sex == "Females"])
+
+# Create the ggplot object for the stacked bar chart with updated tooltips
+p <- ggplot(summarized_data, aes(x = AgeGroup, y = total_pop, fill = Sex,
+                                text = paste(" Age Group: ", AgeGroup, "<br>",
+                                              "Total Population (", Sex, "): ", comma(total_pop), "<br>",
+                                              "Total Population ( Males & Females ): ", comma(agegroup_total)))) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = c("Males" = "blue", "Females" = "pink")) +
+  theme_minimal() +
+  labs(title = "Population by Age Group and Sex",
+       x = "Age Group", 
+       y = "Total Population") +
+  scale_y_continuous(labels = comma) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Convert to plotly
+p_plotly <- ggplotly(p, tooltip = "text")
+
+# Add annotation using plotly's native function
+p_plotly <- p_plotly %>%
+  layout(
+    height = 450,
+    annotations = list(
+      list(
+        x = 1.02,
+        y = 1,
+        text = paste0("Total Population: ", comma(total_population), "<br>",
+                      "Total Male Population: ", comma(total_male_population), "<br>",
+                      "Total Female Population: ", comma(total_female_population)),
+        xref = "paper", yref = "paper",
+        showarrow = FALSE,
+        align = "left",
+        font = list(size = 10)
+      )
+    )
+  )
+
+# Show the final plot
+p_plotly
+```
+
+
+
+
+```{r}
+# Filter for AgeGroup 70 and above
+age70plus_data <- data %>%
+  filter(
+    (Age == "90_and_Over") |
+    (suppressWarnings(as.numeric(Age)) >= 70)
+  )
+
+# Summarize population over 70 by PA
+pa_70plus_summary <- age70plus_data %>%
+  group_by(PA) %>%
+  summarise(pop_over_70 = sum(Pop), .groups = "drop") %>%
+  arrange(desc(pop_over_70))
+
+# Calculate total population over age 70
+total_pop_over_70 <- sum(pa_70plus_summary$pop_over_70, na.rm = TRUE)
+
+# Plot using ggplot with custom tooltip text
+p2 <- ggplot(pa_70plus_summary, aes(
+  x = reorder(PA, -pop_over_70),
+  y = pop_over_70,
+  text = paste0("PA: ", PA, "<br>Population Over 70: ", comma(pop_over_70))
+)) +
+  geom_bar(stat = "identity", fill = "darkgreen") +
+  theme_minimal() +
+  labs(
+    title = "Population Over Age 70 by Planning Area",
+    x = "Planning Area (PA)",
+    y = "Population Over 70"
+  ) +
+  scale_y_continuous(labels = comma) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Convert to Plotly with custom tooltip
+p2_plotly <- ggplotly(p2, tooltip = "text")
+
+# Add annotation for total population over 70
+p2_plotly <- p2_plotly %>%
+  layout(
+    annotations = list(
+      list(
+        x = 0.95,
+        y = 1,
+        xref = "paper",
+        yref = "paper",
+        text = paste0("Total Pop 70+: ", comma(total_pop_over_70)),
+        showarrow = FALSE,
+        align = "left",
+        font = list(size = 10)
+      )
+    )
+  )
+
+# Show the plot
+p2_plotly
+
+
+```
+
+
+
+
+
+
+
+```{r}
+# Filter for PA = "Bedok" and AgeGroup 70 and above
+bedok_data <- data %>%
+  filter(
+    PA == "Bedok" &
+    (Age == "90_and_Over" | suppressWarnings(as.numeric(Age)) >= 70)
+  )
+
+# Summarize population 70 and above by SZ (subzone)
+bedok_70plus_summary <- bedok_data %>%
+  group_by(SZ) %>%
+  summarise(pop_over_70 = sum(Pop), .groups = "drop") %>%
+  arrange(desc(pop_over_70))
+
+# Total population over 70 in Bedok
+total_bedok_70plus <- sum(bedok_70plus_summary$pop_over_70)
+total_label <- paste0("Total: ", comma(total_bedok_70plus))
+
+# Offset for text above bars
+offset <- max(bedok_70plus_summary$pop_over_70) * 0.02
+
+# Create ggplot
+p3 <- ggplot(bedok_70plus_summary, aes(x = reorder(SZ, -pop_over_70), y = pop_over_70)) +
+  geom_bar(stat = "identity", fill = "darkblue") +
+  geom_text(aes(y = pop_over_70 + offset, label = comma(pop_over_70)), size = 3) +
+  theme_minimal() +
+  labs(
+    title = "Population Over Age 70 in Bedok Subzones",
+    x = "Subzone (SZ)",
+    y = "Population Over 70"
+  ) +
+  scale_y_continuous(labels = comma, expand = expansion(mult = c(0, 0.1))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Convert to plotly
+p3_plotly <- ggplotly(p3, tooltip = NULL)
+
+# Add annotation using layout (paper coordinates)
+p3_plotly <- p3_plotly %>%
+  layout(annotations = list(
+    list(
+      x = 0.98,  # near right edge
+      y = 0.98,  # near top
+      text = total_label,
+      xref = "paper",
+      yref = "paper",
+      showarrow = FALSE,
+      font = list(size = 12, color = "black"),
+      align = "right"
+    )
+  ))
+
+# Show the plot
+p3_plotly
+
+
+
+```
