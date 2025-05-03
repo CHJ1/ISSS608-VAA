@@ -303,3 +303,39 @@ p3_plotly <- p3_plotly %>%
 # Show the plot
 p3_plotly
 ```
+
+# Analysis 3
+
+In this visualisation, we observe that Bedok has 42,430 residents aged 70 and above. Among its subzones, Bedok North has the highest elderly population at 13,390, which is significantly higher than the next highest subzone, Bedok South, with 8,310 elderly residents.
+
+# Recommendations
+
+1. Prioritise Elderly-Centric Infrastructure in High Concentration Areas<br>
+<br>
+Given that Bedok, especially Bedok North, has the highest number of elderly residents, urban planning efforts should prioritise the development and maintenance of elderly-friendly infrastructure. This includes sheltered walkways, wheelchair-accessible paths, more seating areas, and easy access to healthcare facilities, parks, and public transport.<br>
+<br>
+2. Increase Community-Based Elderly Support Services in Bedok<br>
+<br>
+Community centres and eldercare services in Bedok should be expanded or enhanced to meet growing needs. Initiatives such as senior activity centres, home care services, and volunteer companionship programmes can help reduce social isolation and improve mental and physical well-being.<br>
+<br>
+3. Tailor Resource Allocation Based on Subzone-Level Demographics<br>
+<br>
+With significant variation in elderly population across subzones, policies and resource planning should be localised. Subzones with higher elderly concentrations should receive proportionately more support in terms of medical services, emergency response readiness, and community engagement initiatives.
+
+# Further Studies
+
+1. Living Arrangements of the Elderly<br>
+<br>
+Understanding whether elderly residents live alone, with family, or in eldercare facilities can help in designing appropriate support systems. For instance, those living alone may require more home care or outreach services.<br>
+<br>
+2. Access to Healthcare and Amenities<br>
+<br>
+Conduct spatial analysis to assess proximity of elderly residents to clinics, hospitals, eldercare centres, and public amenities. This will highlight service gaps in areas with high elderly populations but poor access to essential services.<br>
+<br>
+3. Future Population Projections<br>
+<br>
+Include population ageing projections at the subzone level to understand where elderly population is expected to rise most in the coming 5–10 years. This helps in long-term infrastructure planning.<br>
+
+# Conlusion
+
+The ageing trend in Singapore is evident, with a significant proportion of residents aged 70 and above, particularly concentrated in planning areas like Bedok. Within Bedok, subzones such as Bedok North house the highest elderly populations, indicating a clear need for targeted support. To ensure that Singapore's elderly can age with dignity and comfort, planning must prioritise elderly-friendly infrastructure, expand community-based services, and allocate resources based on subzone-level needs. Further studies into living arrangements, healthcare access, and future demographic trends will be essential to guide long-term, sustainable planning.
