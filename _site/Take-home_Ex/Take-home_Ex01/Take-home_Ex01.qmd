@@ -228,7 +228,7 @@ p2_plotly
 
 # Analysis 2
 
-A bar chart of the population aged 70 and above by planning area was plotted to visualise where the elderly are concentrated in Singapore. According to the visualisation, the total elderly population is 4,901,160, with 42,430 residing in Bedok. This makes Bedok the planning area with the highest elderly population in Singapore. The bar chart also shows that the number of elderly in Bedok is significantly higher compared to other areas.
+A bar chart of the population aged 70 and above by planning area was plotted to visualise where the elderly are concentrated in Singapore. According to the visualisation, the total elderly population is 490,160, with 42,430 residing in Bedok. This makes Bedok the planning area with the highest elderly population in Singapore. The bar chart also shows that the number of elderly in Bedok is significantly higher compared to other areas.
 
 In the subsequent visualisation, we will further investigate which subzone(s) within Bedok have a higher concentration of elderly residents. This will help guide our analysis on where resources for elderly support should be prioritised.
 
@@ -336,6 +336,6 @@ Conduct spatial analysis to assess proximity of elderly residents to clinics, ho
 <br>
 Include population ageing projections at the subzone level to understand where elderly population is expected to rise most in the coming 5–10 years. This helps in long-term infrastructure planning.<br>
 
-# Conlusion
+# Conclusion
 
 The ageing trend in Singapore is evident, with a significant proportion of residents aged 70 and above, particularly concentrated in planning areas like Bedok. Within Bedok, subzones such as Bedok North house the highest elderly populations, indicating a clear need for targeted support. To ensure that Singapore's elderly can age with dignity and comfort, planning must prioritise elderly-friendly infrastructure, expand community-based services, and allocate resources based on subzone-level needs. Further studies into living arrangements, healthcare access, and future demographic trends will be essential to guide long-term, sustainable planning.
