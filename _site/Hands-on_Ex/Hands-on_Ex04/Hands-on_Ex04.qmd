@@ -454,3 +454,18 @@ ggplot(data = exam,
   theme_bw() + 
   transition_states(.draw, 1, 3)
 ```
+
+# Funnel Plots for Fair Comparisons
+
+# Install Packages
+
+```{r} 
+pacman::p_load(tidyverse, FunnelPlotR, plotly, knitr)
+```
+
+# Import Data
+```{r} 
+covid19 <- read_csv("data/COVID-19_DKI_Jakarta.csv") %>%
+  mutate_if(is.character, as.factor)
+```
+
