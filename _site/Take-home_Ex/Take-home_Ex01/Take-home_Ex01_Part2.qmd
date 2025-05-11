@@ -91,5 +91,137 @@ popu_data1 <- popu_data1 %>%
 popu_data1
 ```
 
+# Makeover 1
 
+```{r}
+library(dplyr)
+library(ggplot2)
+library(scales) 
+
+# Bin ages into 5-year groups
+pyramid_data <- popu_data1 %>%
+  mutate(
+    AgeGroup = cut(
+      Age,
+      breaks = c(seq(0, 85, by = 5), Inf),
+      labels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", 
+                 "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", 
+                 "70-74", "75-79", "80-84", "85+"),
+      right = FALSE
+    ),
+    AgeGroup = ifelse(is.na(AgeGroup), "85+", as.character(AgeGroup))
+  ) %>%
+  mutate(AgeGroup = factor(AgeGroup, levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", 
+                                                "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", 
+                                                "65-69", "70-74", "75-79", "80-84", "85+"))) %>%
+  group_by(Sex, AgeGroup) %>%
+  summarise(Pop = sum(Pop), .groups = "drop") %>%
+  mutate(Pop = ifelse(Sex == "Male", -Pop, Pop))
+
+# Define color
+gender_colors <- c("Male" = "#9ecae1", "Female" = "#fbb4b9")
+
+# Plot
+ggplot(pyramid_data, aes(x = AgeGroup, y = Pop, fill = Sex)) +
+  geom_bar(stat = "identity", width = 0.9) +
+  coord_flip() +
+  scale_y_continuous(labels = label_comma(scale = 1, accuracy = 1)) + 
+  scale_fill_manual(values = gender_colors) +
+  labs(
+    title = "Population Pyramid of Singapore Residents (2024)",
+    subtitle = "Distribution by Age Group and Gender",
+    x = "Age Group",
+    y = "Population",
+    fill = "Gender"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 13, margin = margin(b = 10)),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+```
+
+Binning the ages into 5-year intervals enhances the readability of the population pyramid, making it easier to interpret demographic trends.
+
+# Makeover 2
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# Summarise total population by Planning Area (PA)
+top_pa <- popu_data1 %>%
+  group_by(PA) %>%
+  summarise(Total = sum(Pop)) %>%
+  arrange(desc(Total)) %>%
+  slice_head(n = 10)
+
+# Plot
+ggplot(top_pa, aes(x = reorder(PA, Total), y = Total)) +
+  geom_col(fill = "#4682b4") +
+  coord_flip() +
+  scale_y_continuous(labels = comma) +
+  geom_text(aes(label = comma(Total)), size = 4, hjust = 1.1, vjust = 0.5) +  
+  labs(
+    title = "Top 10 Planning Areas by Population (2024)",
+    x = "Planning Area",
+    y = "Total Population"
+  ) + 
+  theme_minimal(base_size = 13)
+```
+
+With the data labels displayed, readers can now easily determine the exact population size for each Planning Area.
+
+# Makeover 3
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(plotly)
+
+# Prepare data
+top10_pa <- popu_data1 %>%
+  count(PA, wt = Pop) %>%
+  top_n(10, n) %>%
+  pull(PA)
+
+age_grouped <- popu_data1 %>%
+  filter(PA %in% top10_pa) %>%
+  mutate(
+    AgeGroup = case_when(
+      Age >= 25 & Age <= 64 ~ "Working-age",
+      TRUE ~ "Non-working-age"
+    )
+  ) %>%
+  group_by(PA, AgeGroup) %>%
+  summarise(Total = sum(Pop), .groups = "drop")
+
+# Static ggplot object
+p <- ggplot(age_grouped, aes(x = reorder(PA, -Total), y = Total, fill = AgeGroup,
+                             text = paste0("Planning Area: ", PA,
+                                           "<br>Age Group: ", AgeGroup,
+                                           "<br>Population: ", comma(Total)))) +
+  geom_col(color = "black", alpha = 0.9) +
+  scale_fill_manual(values = c("Working-age" = "#3182bd", "Non-working-age" = "#fdae6b")) +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "Working and Non-working Age Population<br> in Top 10 Planning Areas (2024)",
+    x = "Planning Area",
+    y = "Population",
+    fill = "Age Group"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    plot.title = element_text(face = "bold", size = 15)
+  )
+
+ggplotly(p, tooltip = "text")
+```
+
+When the mouse is hovered over the stacked bar charts, a tooltip will appear showing the exact values of the working and non-working age populations for the respective Planning Areas.
 
