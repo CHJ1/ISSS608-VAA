@@ -51,3 +51,45 @@ Area of Improvement 3:
 
 Similarly, readers are unable to discern the exact values in the stacked bar charts, as there are no tooltips to display this information.
 
+# Codes to Re-create Anqi's Visualisations
+
+```{r}
+pacman::p_load(tidyverse, ggrepel, patchwork, 
+               ggthemes, hrbrthemes,) 
+               
+popu_data <- read_csv("data/respopagesex2024.csv", show_col_types = FALSE)
+
+cat("Total number of records in the dataset:", nrow(popu_data), "\n")
+
+# Remove the 'Time' column from the dataset
+popu_data1 <- popu_data %>% select(-Time)
+
+# Checks for NA in each column
+colSums(is.na(popu_data1))
+
+# Here's what the dataset looks like so far
+popu_data1
+
+# Step 1: Recode "90 and over" to "90"
+popu_data1 <- popu_data1 %>%
+  mutate(Age = ifelse(Age == "90 and over", "90", Age))
+
+# Step 2: Convert Age to integer
+popu_data1 <- popu_data1 %>%
+  mutate(
+    Age = trimws(Age),
+    Age = ifelse(Age == "90 and over", "90", Age),
+    Age = as.integer(Age)
+  )
+
+popu_data1 <- popu_data1 %>%
+  mutate(
+    Sex = recode(Sex, "Males" = "Male", "Females" = "Female")
+  )
+
+# Here's what the dataset looks like so far
+popu_data1
+```
+
+
+

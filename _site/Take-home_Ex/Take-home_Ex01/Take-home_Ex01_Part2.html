@@ -22,6 +22,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -102,6 +136,82 @@ ul.task-list li input[type="checkbox"] {
 <p>Anqi used a stacked bar chart to clearly show the proportion of the working and non-working age population, allowing readers to grasp the breakdown at a glance.</p>
 <p>Area of Improvement 3:</p>
 <p>Similarly, readers are unable to discern the exact values in the stacked bar charts, as there are no tooltips to display this information.</p>
+</section>
+<section id="codes-to-re-create-anqis-visualisations" class="level1">
+<h1>Codes to Re-create Anqi’s Visualisations</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, ggrepel, patchwork, </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               ggthemes, hrbrthemes,) </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>               </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>popu_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/respopagesex2024.csv"</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Total number of records in the dataset:"</span>, <span class="fu">nrow</span>(popu_data), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total number of records in the dataset: 60424 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove the 'Time' column from the dataset</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>popu_data1 <span class="ot">&lt;-</span> popu_data <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>Time)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Checks for NA in each column</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(popu_data1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> PA  SZ Age Sex Pop 
+  0   0   0   0   0 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Here's what the dataset looks like so far</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>popu_data1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 60,424 × 5
+   PA         SZ                     Age   Sex       Pop
+   &lt;chr&gt;      &lt;chr&gt;                  &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;
+ 1 Ang Mo Kio Ang Mo Kio Town Centre 0     Males      10
+ 2 Ang Mo Kio Ang Mo Kio Town Centre 0     Females    10
+ 3 Ang Mo Kio Ang Mo Kio Town Centre 1     Males      10
+ 4 Ang Mo Kio Ang Mo Kio Town Centre 1     Females    10
+ 5 Ang Mo Kio Ang Mo Kio Town Centre 2     Males      10
+ 6 Ang Mo Kio Ang Mo Kio Town Centre 2     Females    10
+ 7 Ang Mo Kio Ang Mo Kio Town Centre 3     Males      10
+ 8 Ang Mo Kio Ang Mo Kio Town Centre 3     Females    10
+ 9 Ang Mo Kio Ang Mo Kio Town Centre 4     Males      30
+10 Ang Mo Kio Ang Mo Kio Town Centre 4     Females    10
+# ℹ 60,414 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Recode "90 and over" to "90"</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>popu_data1 <span class="ot">&lt;-</span> popu_data1 <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Age =</span> <span class="fu">ifelse</span>(Age <span class="sc">==</span> <span class="st">"90 and over"</span>, <span class="st">"90"</span>, Age))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Convert Age to integer</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>popu_data1 <span class="ot">&lt;-</span> popu_data1 <span class="sc">%&gt;%</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Age =</span> <span class="fu">trimws</span>(Age),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Age =</span> <span class="fu">ifelse</span>(Age <span class="sc">==</span> <span class="st">"90 and over"</span>, <span class="st">"90"</span>, Age),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Age =</span> <span class="fu">as.integer</span>(Age)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>popu_data1 <span class="ot">&lt;-</span> popu_data1 <span class="sc">%&gt;%</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sex =</span> <span class="fu">recode</span>(Sex, <span class="st">"Males"</span> <span class="ot">=</span> <span class="st">"Male"</span>, <span class="st">"Females"</span> <span class="ot">=</span> <span class="st">"Female"</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Here's what the dataset looks like so far</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>popu_data1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 60,424 × 5
+   PA         SZ                       Age Sex      Pop
+   &lt;chr&gt;      &lt;chr&gt;                  &lt;int&gt; &lt;chr&gt;  &lt;dbl&gt;
+ 1 Ang Mo Kio Ang Mo Kio Town Centre     0 Male      10
+ 2 Ang Mo Kio Ang Mo Kio Town Centre     0 Female    10
+ 3 Ang Mo Kio Ang Mo Kio Town Centre     1 Male      10
+ 4 Ang Mo Kio Ang Mo Kio Town Centre     1 Female    10
+ 5 Ang Mo Kio Ang Mo Kio Town Centre     2 Male      10
+ 6 Ang Mo Kio Ang Mo Kio Town Centre     2 Female    10
+ 7 Ang Mo Kio Ang Mo Kio Town Centre     3 Male      10
+ 8 Ang Mo Kio Ang Mo Kio Town Centre     3 Female    10
+ 9 Ang Mo Kio Ang Mo Kio Town Centre     4 Male      30
+10 Ang Mo Kio Ang Mo Kio Town Centre     4 Female    10
+# ℹ 60,414 more rows</code></pre>
+</div>
+</div>
 </section>
 
 </main>
