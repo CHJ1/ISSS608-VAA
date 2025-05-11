@@ -19,11 +19,35 @@ I will be providing a critique of the visualisation created by my classmate, Wan
 
 Link to Anqi's Assignment: https://isss608-25t3-anqi.netlify.app/take-home_ex/take-home_ex01/take-home_ex01
 
-# Objectives of the Article
+# My Critique
 
 <img src="image/Screenshot2025-05-11at4.56.02PM.png" alt="test" style="max-width: 100%;">
 
+Strength 1: 
+
+Anqi presented the population distribution of Singapore Residents using a population pyramid, with males on the left and females on the right. This is a commonly used method for visualising a country's population structure by age group, offering a clear and intuitive overview.
+
+Area of Improvement 1:
+
+Anqi did not group the ages into bins, which makes the visualisation harder to interpret for readers who are interested in specific age ranges.
 
 <img src="image/Screenshot2025-05-11at5.16.43PM.png" alt="test" style="max-width: 100%;">
 
+Strength 2:
+
+Anqi sorted the Planning Areas in descending order of population, making the visualisation easier to read and interpret.
+
+Area of Improvement 2:
+
+Readers are unable to determine the exact population of each Planning Area, as there are no tooltips or data labels displayed in the visualisation.
+
 <img src="image/Screenshot2025-05-11at5.17.01PM.png" alt="test" style="max-width: 100%;">
+
+Strength 3:
+
+Anqi used a stacked bar chart to clearly show the proportion of the working and non-working age population, allowing readers to grasp the breakdown at a glance.
+
+Area of Improvement 3:
+
+Similarly, readers are unable to discern the exact values in the stacked bar charts, as there are no tooltips to display this information.
+
