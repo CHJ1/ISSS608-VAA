@@ -33,3 +33,51 @@ GAStech_edges <- read_csv("data/GAStech_email_edge-v2.csv")
 ```{r}
 glimpse(GAStech_edges)
 ```
+
+# Data Wrangling
+
+```{r}
+GAStech_edges <- GAStech_edges %>%
+  mutate(SendDate = dmy(SentDate)) %>%
+  mutate(Weekday = wday(SentDate,
+                        label = TRUE,
+                        abbr = FALSE))
+```
+
+# Aggregating the individual by date, senders, receivers, main subject and day of the week
+
+```{r}
+GAStech_edges_aggregated <- GAStech_edges %>%
+  filter(MainSubject == "Work related") %>%
+  group_by(source, target, Weekday) %>%
+    summarise(Weight = n()) %>%
+  filter(source!=target) %>%
+  filter(Weight > 1) %>%
+  ungroup()
+```
+
+# Creating network objects using tidygraph
+
+```{r}
+GAStech_graph <- tbl_graph(nodes = GAStech_nodes,
+                           edges = GAStech_edges_aggregated, 
+                           directed = TRUE)
+```
+
+# Reviewing the output tidygraph’s graph object
+
+```{r}
+GAStech_graph
+```
+
+# Changing the active object
+
+```{r}
+GAStech_graph %>%
+  activate(edges) %>%
+  arrange(desc(Weight))
+```
+
+
+
+
