@@ -3,14 +3,15 @@ title: "Take-home_Ex01_Part2"
 author: "CHJ1"
 date: "11 May 2025"
 date-modified: "last-modified"
-format: html
+format: docx
 editor: visual
 execute:
   eval: true
   echo: true
   warning: false
   freeze: true
-output: html_document
+output: docx
+prefer-html: true
 ---
 
 # Objectives of the Assignment
