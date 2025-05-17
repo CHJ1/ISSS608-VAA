@@ -1,0 +1,121 @@
+---
+title: "Vast Challenge 2025 MC1 In-class Exercise"
+author: "CHJ1"
+date: "17 May 2025"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute:
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# Load Packages
+
+```{r}
+pacman::p_load(tidygraph, jsonlite, SmartEDA,
+               tidyverse, ggraph)
+```
+
+# Importing knowledge Graph Data
+
+```{r}
+kg <- fromJSON("data/MC1_graph.json")
+```
+
+# Inspect Structure
+
+```{r}
+str(kg, max.level = 1)
+```
+
+# Extract and Inspect
+
+```{r}
+nodes_tbl <- as_tibble(kg$nodes)
+edges_tbl <- as_tibble(kg$links)
+```
+
+# Initial EDA
+
+```{r}
+ggplot(data = edges_tbl,
+       aes(y = `Edge Type`)) +
+  geom_bar()
+```
+
+# Step 1: mapping from node id to row index
+
+```{r}
+id_map <- tibble(id = nodes_tbl$id,
+                 index = seq_len(
+                   nrow(nodes_tbl)))
+```
+
+# Step 2: map source and target IDs to row indices
+
+```{r}
+edges_tbl <- edges_tbl %>%
+  left_join(id_map, by = c("source" = "id")) %>%
+  rename(from = index) %>%
+  left_join(id_map, by = c("target" = "id")) %>%
+  rename(to = index)
+```
+
+# Step 3: filter out any unmatched (invalid) edges
+
+```{r}
+edges_tbl <- edges_tbl %>%
+  filter(!is.na(from), !is.na(to))
+```
+
+# Step 4: creating the graph
+
+```{r}
+graph <- tbl_graph(nodes = nodes_tbl,
+                   edges = edges_tbl,
+                   directed = kg$directed)
+```
+
+# visualising the knowledge graph
+
+```{r}
+set.seed(1234)
+```
+
+# visualising the whole graph
+
+```{r}
+#| eval: false
+ggraph(graph, layout = "fr") +
+  geom_edge_link(alpha = 0.3,
+                 colour = "gray") +
+  geom_node_point(aes(color = `Node Type`),
+                  size = 4) +
+  geom_node_text(aes(label = name),
+                 repel = TRUE,
+                 size = 2.5) +
+  theme_void()
+```
+
+
+
+
+graph_memberof <- graph %>%
+  activate(edges) %>%
+  filter(`Edge Type` == "Memberof")
+
+used_node_inndices <- graph_memberof %>%
+  activate(edges) %>%
+  as_tibble() %>%
+  select(from, to) %>%
+  unlist() %>%
+  unique()
+  
+graph_memberof <- graph_memberof %>%
+activate(nodes) %>%
+mutate(row_id = row_number()) %>%
+filter(row_id %in% used_node_indices) %>%
+select(-row_id)
