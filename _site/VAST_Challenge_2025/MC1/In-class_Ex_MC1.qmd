@@ -99,23 +99,47 @@ ggraph(graph, layout = "fr") +
                  size = 2.5) +
   theme_void()
 ```
+# Step 1: filter edges to only "Memberof'
 
-
-
-
-graph_memberof <- graph %>%
-  activate(edges) %>%
+```{r}
+graph_memberof <- graph %>% 
+  activate(edges) %>% 
   filter(`Edge Type` == "Memberof")
+```
 
-used_node_inndices <- graph_memberof %>%
-  activate(edges) %>%
-  as_tibble() %>%
-  select(from, to) %>%
-  unlist() %>%
+# Step 2: extract only connected nodes (ie, used in these edges)
+
+```{r}
+used_node_indices <- graph_memberof %>% 
+  activate(edges) %>% 
+  as_tibble() %>% 
+  select(from, to) %>% 
+  unlist() %>% 
   unique()
-  
-graph_memberof <- graph_memberof %>%
-activate(nodes) %>%
-mutate(row_id = row_number()) %>%
-filter(row_id %in% used_node_indices) %>%
-select(-row_id)
+```
+
+# Step 3: keep only those nodes
+
+```{r}
+graph_memberof <- graph_memberof %>% 
+  activate(nodes) %>% 
+  mutate(row_id = row_number()) %>% 
+  filter(row_id %in% used_node_indices) %>% 
+  select(-row_id)
+```
+
+# plot the sub-graph
+
+```{r}
+ggraph(graph_memberof, layout = "fr") +
+  geom_edge_link(alpha = 0.5,
+                 colour = "gray") +
+  geom_node_point(aes(color = `Node Type`),
+                  size = 1) +
+  geom_node_text(aes(label = name),
+                 repel = TRUE,
+                 size = 2.5) +
+  theme_void()
+```
+
+
