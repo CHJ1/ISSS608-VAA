@@ -1,7 +1,7 @@
 ---
-title: "Vast Challenge 2025 MC1 In-class Exercise"
+title: "Vast Challenge 2025 MC3"
 author: "CHJ1"
-date: "17 May 2025"
+date: "18 May 2025"
 date-modified: "last-modified"
 format: html
 editor: visual
@@ -23,6 +23,7 @@ pacman::p_load(tidygraph, jsonlite, SmartEDA,
 
 ```{r}
 kg <- fromJSON("data/MC3_graph.json")
+kg2 <- fromJSON("data/MC3_schema.json")
 ```
 
 # Inspect Structure
