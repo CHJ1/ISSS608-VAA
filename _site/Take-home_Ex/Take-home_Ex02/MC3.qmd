@@ -22,7 +22,7 @@ pacman::p_load(tidygraph, jsonlite, SmartEDA,
 # Importing knowledge Graph Data
 
 ```{r}
-kg <- fromJSON("data/MC1_graph.json")
+kg <- fromJSON("data/MC3_graph.json")
 ```
 
 # Inspect Structure
