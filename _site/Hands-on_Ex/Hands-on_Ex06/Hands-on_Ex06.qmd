@@ -15,16 +15,14 @@ execute:
 # Load Packages
 
 ```{r}
-pacman::p_load(igraph, tidygraph, ggraph, 
-               visNetwork, lubridate, clock,
-               tidyverse, graphlayouts, 
-               concaveman, ggforce)
+pacman::p_load(scales, viridis, lubridate, ggthemes,
+               gridExtra, readxl, knitr, data.table,
+               CGPfunctions, ggHoriPlot, tidyverse)
 ```
 
 # Import Data
 
 ```{r}
-GAStech_nodes <- read_csv("data/GAStech_email_node.csv")
-GAStech_edges <- read_csv("data/GAStech_email_edge-v2.csv")
+attacks <- read_csv("data/eventlog.csv")
 ```
 
