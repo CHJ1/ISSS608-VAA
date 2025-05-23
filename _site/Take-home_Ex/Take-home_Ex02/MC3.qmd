@@ -15,131 +15,173 @@ execute:
 # Load Packages
 
 ```{r}
-pacman::p_load(tidygraph, jsonlite, SmartEDA,
-               tidyverse, ggraph)
+pacman::p_load(tidyverse, jsonlite,
+               tidygraph, ggraph,
+               SmartEDA)
 ```
 
 # Importing knowledge Graph Data
 
 ```{r}
-kg <- fromJSON("data/MC3_graph.json")
-kg2 <- fromJSON("data/MC3_schema.json")
+MC3 <- fromJSON("data/MC3_graph.json")
+MC3_schema <- fromJSON("data/MC3_schema.json")
 ```
 
 # Inspect Structure
 
 ```{r}
-str(kg, max.level = 1)
+glimpse(MC3)
 ```
 
-# Extract and Inspect
+# Extracting the edges and nodes tables
 
 ```{r}
-nodes_tbl <- as_tibble(kg$nodes)
-edges_tbl <- as_tibble(kg$links)
+mc3_nodes <- as_tibble(MC3$nodes)
+mc3_edges <- as_tibble(MC3$edges)
 ```
 
 # Initial EDA
 
 ```{r}
-ggplot(data = edges_tbl,
-       aes(y = `Edge Type`)) +
-  geom_bar()
+ExpCatViz(data=mc3_nodes,
+          col="lightblue")
 ```
-
-# Step 1: mapping from node id to row index
 
 ```{r}
-id_map <- tibble(id = nodes_tbl$id,
-                 index = seq_len(
-                   nrow(nodes_tbl)))
+ExpCatViz(data=mc3_edges,
+          col="lightblue")
 ```
 
-# Step 2: map source and target IDs to row indices
+# Cleaning and wrangling nodes
 
 ```{r}
-edges_tbl <- edges_tbl %>%
-  left_join(id_map, by = c("source" = "id")) %>%
-  rename(from = index) %>%
-  left_join(id_map, by = c("target" = "id")) %>%
-  rename(to = index)
+mc3_nodes_cleaned <- mc3_nodes %>%
+  mutate(id = as.character(id)) %>%
+  filter(!is.na(id)) %>%
+  distinct(id, .keep_all = TRUE) %>%
+  select(-thing_collected)
 ```
-
-# Step 3: filter out any unmatched (invalid) edges
 
 ```{r}
-edges_tbl <- edges_tbl %>%
-  filter(!is.na(from), !is.na(to))
+mc3_edges_cleaned <- mc3_edges %>%
+  rename(from_id = source, 
+         to_id = target) %>%
+  mutate(across(c(from_id, to_id), 
+                as.character)) %>%
+  filter(from_id %in% mc3_nodes_cleaned$id, 
+         to_id %in% mc3_nodes_cleaned$id) %>%
+  filter(!is.na(from_id), !is.na(to_id))
 ```
-
-# Step 4: creating the graph
 
 ```{r}
-graph <- tbl_graph(nodes = nodes_tbl,
-                   edges = edges_tbl,
-                   directed = kg$directed)
+node_index_lookup <- mc3_nodes_cleaned %>%
+  mutate(.row_id = row_number()) %>%
+  select(id, .row_id)
 ```
 
-# visualising the knowledge graph
+```{r}
+mc3_edges_indexed <- mc3_edges_cleaned %>%
+  left_join(node_index_lookup, 
+            by = c("from_id" = "id")) %>%
+  rename(from = .row_id) %>%
+  left_join(node_index_lookup, 
+            by = c("to_id" = "id")) %>%
+  rename(to = .row_id) %>%
+  select(from, to, is_inferred, type) %>%
+  filter(!is.na(from) & !is.na(to))  
+```
+
+```{r}
+used_node_indices <- sort(
+  unique(c(mc3_edges_indexed$from, 
+           mc3_edges_indexed$to)))
+
+mc3_nodes_final <- mc3_nodes_cleaned %>%
+  slice(used_node_indices) %>%
+  mutate(new_index = row_number())
+```
+
+```{r}
+old_to_new_index <- tibble(
+  old_index = used_node_indices,
+  new_index = seq_along(
+    used_node_indices))
+```
+
+```{r}
+mc3_edges_final <- mc3_edges_indexed %>%
+  left_join(old_to_new_index, 
+            by = c("from" = "old_index")) %>%
+  rename(from_new = new_index) %>%
+  left_join(old_to_new_index, 
+            by = c("to" = "old_index")) %>%
+  rename(to_new = new_index) %>%
+  select(from = from_new, to = to_new, 
+         is_inferred, type)
+```
+
+# Building the tidygraph object
+
+```{r}
+mc3_graph <- tbl_graph(
+  nodes = mc3_nodes_final,
+  edges = mc3_edges_final,
+  directed = TRUE
+)
+```
+
+```{r}
+str(mc3_graph)
+```
+
+# Visualising the knowledge graph
 
 ```{r}
 set.seed(1234)
 ```
 
-# visualising the whole graph
-
 ```{r}
-#| eval: false
-ggraph(graph, layout = "fr") +
-  geom_edge_link(alpha = 0.3,
+ggraph(mc3_graph, 
+       layout = "fr") +
+  geom_edge_link(alpha = 0.3, 
                  colour = "gray") +
-  geom_node_point(aes(color = `Node Type`),
+  geom_node_point(aes(color = `type`), 
                   size = 4) +
-  geom_node_text(aes(label = name),
-                 repel = TRUE,
+  geom_node_text(aes(label = type), 
+                 repel = TRUE, 
                  size = 2.5) +
   theme_void()
 ```
 
-# Step 1: filter edges to only "Memberof'
 
-```{r}
-graph_memberof <- graph %>% 
-  activate(edges) %>% 
-  filter(`Edge Type` == "Memberof")
-```
 
-# Step 2: extract only connected nodes (ie, used in these edges)
 
-```{r}
-used_node_indices <- graph_memberof %>% 
-  activate(edges) %>% 
-  as_tibble() %>% 
-  select(from, to) %>% 
-  unlist() %>% 
-  unique()
-```
 
-# Step 3: keep only those nodes
 
-```{r}
-graph_memberof <- graph_memberof %>% 
-  activate(nodes) %>% 
-  mutate(row_id = row_number()) %>% 
-  filter(row_id %in% used_node_indices) %>% 
-  select(-row_id)
-```
 
-# plot the sub-graph
 
-```{r}
-ggraph(graph_memberof, layout = "fr") +
-  geom_edge_link(alpha = 0.5,
-                 colour = "gray") +
-  geom_node_point(aes(color = `Node Type`),
-                  size = 1) +
-  geom_node_text(aes(label = name),
-                 repel = TRUE,
-                 size = 2.5) +
-  theme_void()
-```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
