@@ -319,4 +319,58 @@ visNetwork(nodes_vis, edges_vis, height = "800px", width = "100%") %>%
   )
 ```
 
+# Full Network (All Dates and Hours)
+
+# Use All Communication/Event Nodes and Their Edges
+
+```{r}
+library(visNetwork)
+library(purrr)
+
+# Filter for events of interest 
+all_event_ids <- mc3_nodes_final %>%
+  filter(type == "Event", sub_type %in% c("Communication")) %>%
+  pull(new_index)
+
+# Get all edges involving these events 
+all_edges <- mc3_edges_final %>%
+  filter(from %in% all_event_ids | to %in% all_event_ids)
+
+# Get all nodes involved in these edges
+used_indices <- unique(c(all_edges$from, all_edges$to))
+nodes_vis <- mc3_nodes_final %>%
+  filter(new_index %in% used_indices) %>%
+  mutate(
+    id = new_index,
+    label = paste0(label, "\n(", type, ")"),
+    group = type,
+    title = paste0(
+      "Name: ", label, 
+      "\nType: ", type,
+      "\nSubtype: ", sub_type,
+      "\nConnections: ", map_dbl(new_index, ~sum(all_edges$from == .x | all_edges$to == .x))
+    )
+  )
+
+edges_vis <- all_edges %>%
+  mutate(
+    arrows = ifelse(is_inferred, "to;from", "to"),
+    dashes = is_inferred,
+    title = paste("Edge type:", type)
+  )
+```
+
+# Visualise the Full Network
+
+```{r}
+visNetwork(nodes_vis, edges_vis, height = "800px", width = "100%") %>%
+  visOptions(
+    highlightNearest = list(enabled = TRUE, degree = 2, hover = FALSE),
+    nodesIdSelection = TRUE,
+    selectedBy = list(variable = "group", multiple = TRUE)
+  ) %>%
+  visPhysics(stabilization = TRUE) %>%
+  visInteraction(navigationButtons = TRUE) %>%
+  visLegend()
+```
 
