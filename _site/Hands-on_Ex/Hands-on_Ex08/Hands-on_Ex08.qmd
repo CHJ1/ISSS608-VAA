@@ -298,3 +298,90 @@ tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
             frame = FALSE) +
   tm_borders(alpha = 0.5)
 ```
+
+# Visualising Geospatial Point Data
+
+# Data Import and Preparation
+
+```{r}
+sgpools <- read_csv("data/aspatial/SGPools_svy21.csv")
+```
+
+```{r}
+list(sgpools) 
+```
+
+# Creating a sf data frame from an aspatial data frame
+
+```{r}
+sgpools_sf <- st_as_sf(sgpools, 
+                       coords = c("XCOORD", "YCOORD"),
+                       crs= 3414)
+```
+
+```{r}
+list(sgpools_sf)
+```
+
+# Drawing Proportional Symbol Map
+
+```{r}
+tmap_mode("view")
+```
+
+# Create an interactive point symbol map
+
+```{r}
+tm_shape(sgpools_sf) + 
+  tm_bubbles(
+    size = 1,
+    col = "red",             
+    border.col = "black",    
+    border.lwd = 1          
+  )
+```
+
+# Make it proportional
+
+```{r}
+tm_shape(sgpools_sf) + 
+  tm_bubbles(
+    size = "Gp1Gp2 Winnings",
+    col = "red",               
+    border.col = "black",     
+    border.lwd = 1             
+  )
+```
+
+# Give it a different colour
+
+```{r}
+tm_shape(sgpools_sf) + 
+  tm_bubbles(
+    size = "Gp1Gp2 Winnings",
+    col = "OUTLET TYPE",       
+    border.col = "black",     
+    border.lwd = 1            
+  )
+```
+
+# Produce multiple maps with synchronised zoom and pan settings
+
+```{r}
+tm_shape(sgpools_sf) + 
+  tm_bubbles(
+    size = "Gp1Gp2 Winnings",
+    col = "OUTLET TYPE",     
+    border.col = "black",    
+    border.lwd = 1          
+  ) + 
+  tm_facets(
+    by = "OUTLET TYPE",
+    nrow = 1,
+    sync = TRUE
+  )
+```
+
+```{r}
+tmap_mode("plot")
+```
