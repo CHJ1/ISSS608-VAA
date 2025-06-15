@@ -12,7 +12,11 @@ execute:
   freeze: true
 ---
 
-# I will be working on the EDA Module of Take-home Exercise 3.
+# I am working on this project with Teo Wee Siang Roy.
+
+# I will be working on the Communication Patterns Analysis module of Take-home Exercise 3. This module includes daily communication volume, hourly communication volume, a heatmap of communication patterns based on date and hour, contents of the communcations, and a communication network graph.
+
+# Storyboard of our group's Shiny application will also be outlined below.
 
 # Load Packages
 
@@ -40,18 +44,6 @@ glimpse(MC3)
 ```{r}
 mc3_nodes <- as_tibble(MC3$nodes)
 mc3_edges <- as_tibble(MC3$edges)
-```
-
-# Initial EDA
-
-```{r}
-ExpCatViz(data=mc3_nodes,
-          col="lightblue")
-```
-
-```{r}
-ExpCatViz(data=mc3_edges,
-          col="lightblue")
 ```
 
 # Cleaning and wrangling nodes
@@ -187,47 +179,169 @@ hourly_counts <- comm_nodes %>%
   summarise(comm_count = n())
 ```
 
-# Visualise Temporal Patterns
+# Module for Shiny Application
 
 ```{r}
+library(shiny)
 library(ggplot2)
+library(dplyr)
+library(plotly)
+library(lubridate)
+library(DT)
+library(visNetwork)  
 
-ggplot(daily_counts, aes(x = date, y = comm_count)) +
-  geom_col(fill = "steelblue") +
-  geom_text(aes(label = comm_count), 
-            vjust = -0.5, 
-            size = 3) +
-  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
-  scale_x_date(date_labels = "%Y-%m-%d", expand = expansion(mult = c(0.01, 0.1)) 
-  ) + 
-  labs(title = "Daily Communication Volume",
-       x = "Date", y = "Number of Communications") +
-  theme_minimal()
+ui <- fluidPage(
+  titlePanel("Communication Patterns Analysis"),
+  sidebarLayout(
+    sidebarPanel(
+      dateRangeInput("date_filter", "Date Range:",
+                     start = min(comm_nodes$date),
+                     end = max(comm_nodes$date)),
+      sliderInput("hour_filter", "Hour Range:",
+                  min = 0, max = 23,
+                  value = c(0, 23)),
+      width = 3
+    ),
+    mainPanel(
+      tabsetPanel(
+        tabPanel("Daily", plotOutput("daily_plot")),
+        tabPanel("Hourly", plotOutput("hourly_plot")),
+        tabPanel("Heatmap", plotlyOutput("heatmap")),
+        tabPanel("Messages", DTOutput("messages_table")),
+        tabPanel("Network Graph", visNetworkOutput("network_plot", height = "800px"))  # Interactive!
+      ),
+      width = 9
+    )
+  )
+)
+
+server <- function(input, output) {
+  # Filtered communication events by date and hour
+  filtered_data <- reactive({
+    comm_nodes %>%
+      filter(date >= input$date_filter[1],
+             date <= input$date_filter[2],
+             hour >= input$hour_filter[1],
+             hour <= input$hour_filter[2])
+  })
+
+  # Daily Plot
+  output$daily_plot <- renderPlot({
+    daily_counts <- filtered_data() %>%
+      group_by(date) %>%
+      summarise(comm_count = n())
+    ggplot(daily_counts, aes(x = date, y = comm_count)) +
+      geom_col(fill = "steelblue") +
+      geom_text(aes(label = comm_count), vjust = -0.5, size = 3) +
+      geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+      scale_x_date(date_labels = "%Y-%m-%d", expand = expansion(mult = c(0.01, 0.1))) +
+      labs(title = "Daily Communication Volume",
+           x = "Date", y = "Count") +
+      theme_minimal()
+  })
+
+  # Hourly Plot
+  output$hourly_plot <- renderPlot({
+    hourly_totals <- filtered_data() %>%
+      group_by(hour) %>%
+      summarise(comm_count = n())
+    ggplot(hourly_totals, aes(x = hour, y = comm_count)) +
+      geom_col(fill = "steelblue") +
+      geom_text(aes(label = comm_count), vjust = -0.5, size = 3) +
+      geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+      labs(title = "Hourly Communication Volume",
+           x = "Hour", y = "Count") +
+      theme_minimal()
+  })
+
+  # Heatmap
+  output$heatmap <- renderPlotly({
+    hourly_counts <- filtered_data() %>%
+      group_by(date, hour) %>%
+      summarise(comm_count = n(), .groups = "drop")
+    p <- ggplot(hourly_counts, aes(
+      x = hour, y = date, fill = comm_count,
+      text = paste("Date:", date,
+                   "<br>Hour:", hour,
+                   "<br>Communications:", comm_count))) +
+      geom_tile(color = "white") +
+      scale_fill_gradient(low = "white", high = "firebrick") +
+      scale_y_date(date_labels = "%Y-%m-%d") +
+      labs(title = "Hourly Communication Patterns",
+           x = "Hour", y = "Date") +
+      theme_minimal()
+    ggplotly(p, tooltip = "text")
+  })
+
+  # Messages Table
+  output$messages_table <- renderDT({
+    filtered_data() %>%
+      arrange(desc(timestamp)) %>%
+      mutate(Time = format(timestamp, "%Y-%m-%d %H:%M:%S")) %>%
+      select(Time, Content = content)
+  }, options = list(
+      pageLength = 10,
+      autoWidth = TRUE,
+      scrollX = TRUE,
+      columnDefs = list(
+        list(width = '20%', targets = 0),
+        list(width = '80%', targets = 1)
+      )
+    ),
+    rownames = FALSE
+  )
+
+  # Interactive Network Graph
+  output$network_plot <- renderVisNetwork({
+    req(filtered_data())
+    # Get nodes in filtered timeframe
+    peak_comm_ids <- filtered_data() %>% pull(new_index)
+    # Get edges involving these nodes
+    peak_edges <- mc3_edges_final %>%
+      filter(from %in% peak_comm_ids | to %in% peak_comm_ids)
+    # Get unique node indices from edges
+    used_indices <- unique(c(peak_edges$from, peak_edges$to))
+    # Create filtered node table
+    peak_nodes_sub <- mc3_nodes_final %>%
+      filter(new_index %in% used_indices) %>%
+      mutate(sub_index = row_number())
+    # Update edge indices
+    peak_edges_sub <- peak_edges %>%
+      left_join(select(peak_nodes_sub, old_index = new_index, from_sub = sub_index), 
+                by = c("from" = "old_index")) %>%
+      left_join(select(peak_nodes_sub, old_index = new_index, to_sub = sub_index), 
+                by = c("to" = "old_index")) %>%
+      select(from = from_sub, to = to_sub, is_inferred, type) %>%
+      filter(!is.na(from) & !is.na(to)) %>%
+      mutate(id = row_number(),
+             arrows = ifelse(is_inferred, "to;from", "to"),
+             dashes = is_inferred,
+             title = paste("Edge type:", type))
+    # Prepare nodes for visNetwork
+    nodes_vis <- peak_nodes_sub %>%
+      mutate(
+        id = sub_index,
+        label = paste0(label, "\n(", type, ")"),
+        group = type,
+        title = paste0(
+          "Name: ", label, 
+          "\nType: ", type,
+          if ("sub_type" %in% names(.)) paste0("\nSubtype: ", sub_type) else "",
+          "\nConnections: ", purrr::map_dbl(sub_index, ~sum(peak_edges_sub$from == .x | peak_edges_sub$to == .x))
+        )
+      )
+    # visNetwork plot
+    visNetwork(nodes_vis, peak_edges_sub, height = "800px", width = "100%") %>%
+      visOptions(
+        highlightNearest = list(enabled = TRUE, degree = 2, hover = TRUE),
+        nodesIdSelection = TRUE,
+        selectedBy = list(variable = "group", multiple = TRUE)
+      ) %>%
+      visPhysics(stabilization = TRUE) %>%
+      visInteraction(navigationButtons = TRUE) %>%
+      visLegend()
+  })
+}
+
+shinyApp(ui, server)
 ```
-
-```{r}
-hourly_totals <- comm_nodes %>%
-  group_by(hour) %>%
-  summarise(comm_count = n())
-
-ggplot(hourly_totals, aes(x = hour, y = comm_count)) +
-  geom_col(fill = "steelblue") +
-  geom_text(aes(label = comm_count), 
-            vjust = -0.5, 
-            size = 3) +
-  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
-  labs(title = "Hourly Communication Volume",
-       x = "Hour", y = "Number of Communications") +
-  theme_minimal()
-```
-
-```{r}
-ggplot(hourly_counts, aes(x = hour, y = date, fill = comm_count)) +
-  geom_tile(color = "white") +
-  scale_fill_gradient(low = "white", high = "firebrick") +
-  scale_y_date(date_labels = "%Y-%m-%d") +  
-  labs(title = "Hourly Communication Patterns",
-       x = "Hour of Day", y = "Date") +
-  theme_minimal()
-```
-
