@@ -1,0 +1,20 @@
+---
+title: "Hands-on_Ex09"
+author: "CHJ1"
+date: "17 June 2025"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute:
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# Load Packages
+
+```{r}
+pacman::p_load(sf, tmap, tidyverse)
+```
+
