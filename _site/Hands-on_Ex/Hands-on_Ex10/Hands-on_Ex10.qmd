@@ -15,20 +15,22 @@ execute:
 # Importing database into R
 
 ```{r}
-library(RODBC)
-con <- odbcConnectAccess2007('data/Coffee Chain.mdb')
-coffeechain <- sqlFetch(con, 'CoffeeChain Query')
-write_rds(coffeechain, "data/CoffeeChain.rds")
-odbcClose(con)
+# library(RODBC)
+# con <- odbcConnectAccess2007('data/Coffee Chain.mdb')
+# coffeechain <- sqlFetch(con, 'CoffeeChain Query')
+# write_rds(coffeechain, "data/CoffeeChain.rds")
+# odbcClose(con)
 ```
 
 # Import Data
 
 ```{r}
-coffeechain <- read_rds("data/rds/CoffeeChain.rds")
+library(readr)  
+coffeechain <- read_rds("data/CoffeeChain.rds")
 ```
 
 ```{r}
+library(tidyverse)
 product <- coffeechain %>%
   group_by(`Product`) %>%
   summarise(`target` = sum(`Budget Sales`),
@@ -95,6 +97,7 @@ quarts <- sales_report %>%
 # sparklines in ggplot2
 
 ```{r}
+library(ggthemes)
 ggplot(sales_report, aes(x=Month, y=Sales)) + 
   facet_grid(Product ~ ., scales = "free_y") + 
   geom_ribbon(data = quarts, aes(ymin = quart1, max = quart2), 
@@ -120,6 +123,8 @@ ggplot(sales_report, aes(x=Month, y=Sales)) +
 # Plotting a simple bullet chart
 
 ```{r}
+library(gtExtras)
+library(svglite)
 product %>%
   gt::gt() %>%
   gt_plt_bullet(column = current, 
@@ -255,6 +260,8 @@ report <- report %>%
 ```
 
 ```{r}
+library(reactable)
+library(reactablefmtr)
 reactable(
   report,
   columns = list(
@@ -362,6 +369,3 @@ reactable(
   )
 )
 ```
-
-
-
